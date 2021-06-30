@@ -1,0 +1,434 @@
+union find    ->    pUF
+日付計算    ->    pND
+セグ木    ->    pSEG 
+エラトステネスの篩    ->    pERA
+nCk    ->    pCOMB
+三角関数補助    ->    pRAD
+進数変換    ->    pNTT
+
+class ed    ->    pCLS
+mod    ->    modP
+
+// 
+// 主にmain 内にて使用
+// 
+    bs ->　二分探索　判定関数は bins(ll hf) としている
+    perm -> next_perm...
+
+    srt -> sort(all($1));
+    rev -> 逆順loop
+    col -> cout<< $1 <<endl;
+    cii -> int $1 ; cin>> $1 ;
+    cll -> ll  $1 ; cin>> $1 ;
+
+//
+//
+//
+
+ // コード　使用方法集
+
+    union find
+vector<int> uf_par;
+void uf_init(int sz)　// uf_par をsz でresize する　uf_par は　自身がtop_node ではないとき一つ上の親ノードの値を、
+                                                top_node であるときはそのグループのサイズ数を負の値として保持している
+int uf_rt(int x) // 値を更新しつつ最親ノードを返す
+int uf_unt(int x,int y=-1) // x, y をunite する　y==-1 or x==y　である場合はx の属するグループのサイズ数を返す
+
+
+    日付計算
+bool uru(int year) 
+void nxday(int &year,int &month,int &day) // y,m,d を参照渡しすると、グレゴリオ暦に従い一日 後 の日付に直す。
+void preday(int &year,int &month,int &day) // y,m,d を参照渡しすると、グレゴリオ暦に従い一日 前 の日付に直す。
+
+
+    セグメントツリー 　　　　-> int 以外なら書き換える必要はある・・・
+vector<int> seg_t;
+int seg_sz = 1;
+int seg_func_init(int left,int right) // 子ノード間の関係、max や、__gcd 等　使用前に書き換える
+void seg_init(int index,int x) // index i をx で 書き換える　
+void seg_all_init(const vi&v, int init_num) // セグ木のサイズを変更し　範囲内をvectorで、範囲外init_num で埋める
+int seg_content(int i) // seg_t[i]　の内容を返す
+int seg_func(int a,int b,int now=0,int l=0,int r=seg_sz) //　区間内全てに対してseg_func_init 内の関数を使用した結果が返される [a,b) b側は開区間
+    使用方法 ->　サイズsz のvec を受け取り、0-sz の区間でseg_init する 
+    seg_func_init の書き換え ->  seg_all_init ->  seg_func  
+
+
+    class 指定　内容は都度変更
+typedef class ed ed;
+class ed... 
+
+
+    エラトステネスの篩
+vi era_vec,prm;
+void era_init(int prm_sz) // prs_sz 以下の素数をprmに格納する
+
+
+    nCk 
+ll P;
+vll fac, vac, inv;
+void comb_init(int comb_sz) // 前計算
+ll nck(int n,int k) // nCk を計算
+
+
+// 三角関数　引数にはradian 値を使用する
+const db rad_pi=3.141592653589793;
+db rad_to_rad(db angle) // radian　表記へ変換する
+db rad_to_deg(db radian) // degree 表記へ変換する
+void rad_rotate(db &x,db &y,db rad,db cx=0,db cy=0) // (cx,cy) を中心に(x,y) をrad回転する
+
+
+// permutation
+vi perm;
+void perm_init(int perm_sz){perm.resize(perm_sz);rep(i,0,perm_sz) perm[i]=i;}
+
+    do{
+        rep(peri,0,sz(perm)){int i=peri;
+            
+        }
+    }
+    while(next_permutation(all(perm)));
+
+
+// 尺取り　　->　　合計値がlim を超えないように遷移する場合
+vi v(n);
+int r=0; // 開区間　次に（最初に）足すやつ　
+    足すと常にlim を超えてしまうようなv[r]にぶつかると遷移をやめてしまう
+    -> l==r となった場合に限りr++ する（次のloopでl++ されるので、空集合から始まる）
+
+rep(l,0,n){
+    while( rがvの範囲内に収まっているか && 足してlim を超えないか（条件に合致するか） ) now+=v[r++];
+         // 条件に合致する間、rを遷移させてnow　を更新する
+     // while 後は必ずnow は条件を満たしている（空集合の場合もある）
+    ans+=(r-l);　        // ans に対して操作をする
+    if(r==l)r++;        // 空集合になっても操作を行えないほどの外れ値に当たるとr は遷移をすることができない
+                          -> l==r（空集合） の場合に限り 無理やりr を遷移させる(空集合のまま) 
+    else now-=v[l];     // 空集合でない場合はl の遷移に合わせて条件を変更してやる
+}
+
+// 進数表記変換
+char ntt_char(int x) 
+int ntt_int(char c)  
+ss ntt_cng(ss x,ll from,ll to) // 文字列ｘをfrom 進数表記とみなし、to 進法表記に変換する
+ss ntt_erase0(ss s) // 先頭の連続した０を消す　から文字列になった場合は"０"を返す
+
+
+*/ 未完	   
+
+  条件整理がややこしいとき
+while( ! ( 望ましい状態 ) ) {}
+
+
+BFS は一つ一つ処理が完了してから遷移するからわかりやすい？
+DFS も同様に処理順を統一してやればいい　
+ →　到達してから判定、足跡つける、その頂点てしたい処理を済ませる　→　遷移する
+
+
+st.count(x); -> st の中にx がいくつあるか　-> 一つもないなら０が返る
+
+eps の値に関して
+eps=1e-12 ; とかだけど場合による？
+
+/*
+upper もlower も、引数以上の値を探す点は同じ
+異なる点は、引数と全く同じ値の処理のみ
+なので、ほとんどの場合は同じ値を返すことになる
+数値が存在しないCC 処理がかなり面倒だが、その場合は番兵で問答無用に処理しよう
+
+  int lb=lower_bound(all(v),y)-v.begin();
+  int lb=upper_bound(all(v),y)-v.begin();
+//      lb       ub
+  X, X,　　 y, y, y,　　 Z, Z, Z,,,
+*/
+
+
+
+/*
+multiset<int> st;
+// x wo hitotu dake kesu
+st.erase(st.find(x));
+*/
+
+
+
+/*
+// 尺取り
+  rep(l,0,n){
+    while(r<n && now+v[r]<=x)now+=v[r++];
+    ans+=(r-l);
+    if(r==l)r++;
+    else now-=v[l];
+  }
+*/
+/*
+// substring
+// 2~5 (begin~end)
+s.substr(2,6);
+
+// 0-ind x~y
+s.substr(x,y-x+1);
+*/
+/*
+// erase -> i banme
+v.erase(v.begin()+i);
+*/
+
+/*
+  bitset<8> bs(64);
+  // bitset<8> bs("1000");
+
+  if(bs[2]==1){}
+  bs.set(3);
+  // bs.reset(2);
+*/
+
+/*
+//　素因数分解
+  int ma=1e5+5;
+  vi pp(ma,1),prm;
+  rep(i,2,ma){
+    if(pp[i]){
+      prm.pb(i);
+      rep(j,i+i,ma){
+        pp[j]=0;
+        j+=i-1;
+      }
+    }
+  }
+
+  ll n;
+  V<P> pf;
+  for(ll p:prm){
+    if(n%p==0){
+      int now=0;
+      while(n%p==0){
+        n/=p;
+        now++;
+      }
+      pf.pb(P(p,now));
+    }
+  }
+  if(n!=1)pf.pb(P(n,1));
+*/
+
+/*
+// ｎ以下で、ｎと互いに素な数の個数
+// オイラー関数
+  ll n;
+  ll res=n;
+  for(auto x:pf){
+    ll p=x.first;
+
+    res*=(p-1);
+    res/=p;
+  }
+*/
+
+/*nCk　の全列挙
+template<typename ite>
+inline bool next_comb(const ite first,const ite last,int kk){
+  ite k=first;
+  while(kk--)k++;
+  if(first==last or first==k or k==last)return 0;
+  ite itr1=first;
+  ite itr2=last;
+
+  if(++itr1==last)return 0;
+  itr1=k;
+  itr2--;
+
+  while(first!=itr1){
+    if(*--itr1<*itr2){
+      ite j=k;
+      while(*itr1>=*j)++j;
+      iter_swap(itr1++,j++);
+      itr2=k;
+      
+      rotate(itr1,j,last);
+      while(last!=j){
+        j++;
+        itr2++;
+      }
+      
+      rotate(k,itr2,last);
+      return 1;
+    }
+  }
+
+  rotate(first,k,last);
+  return 0;
+}
+
+int main(){
+  cci(n,k);
+  if(n<=k)return co(-1),0;
+  vll v(n);
+  iota(all(v),1);
+  
+  do{
+    rep(i,0,k)cout<<v[i]<<" ";
+    co("");
+  }
+  while(next_comb(all(v),k));
+}
+*/
+
+/*
+ll x,y;
+ll exgcd(ll a,ll b,ll &x,ll &y){
+  if(b==0){x=1;y=0;return a;}
+  ll g=exgcd(b,a%b,y,x);
+  y-=a/b*x;
+  return g
+}
+// gcd(a,b)=1 の時、a*x==1(mod p)　よりx=a^(-1);
+// これは　xが　mod pにおいて　aの逆元であることを表している
+// 
+
+*/
+
+
+
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <queue>
+#include <map>
+#include <set>
+#include <cmath>
+// #include <atcoder/all>
+using namespace std;
+using ll = long long int;
+using vi = vector<int>;
+using vll = vector<ll>;
+using ss = string;
+using db = double;
+template<class T> using minpq = priority_queue <T,vector<T>,greater<T>>;
+const int dx[4] = {1,0,-1,0};
+const int dy[4] = {0,1,0,-1};
+#define V vector
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define rep(i,s,n) for(int i=(s);i<(int)(n);i++)
+#define reciv(v,n) vi (v)((n)); rep(i,0,(n))cin>>v[i]
+#define all(v) v.begin(),v.end()
+#define rall(v) v.rbegin(),v.rend()
+#define ci(x) cin >> x
+#define pb push_back
+#define eb emplace_back
+#define rz resize
+#define sz(x) int(x.size())
+#define yn cout<<"Yes"<<endl;else cout<<"No"<<endl
+#define YN cout<<"YES"<<endl;else cout<<"NO"<<endl
+template<class T>void chmax(T &x,T y){x=max(x,y);}
+template<class T>void chmin(T &x,T y){x=min(x,y);}
+template<class T>void allv(V<T> v){for(T NUM:v)printf("%d ",NUM);printf("\n");}
+// 三角関数, 回転 　引数にはradian 値を使用する
+const db rad_pi=3.141592653589793;
+db rad_to_rad(db angle){return angle*rad_pi/180;}
+db rad_to_deg(db radian){return radian*180/rad_pi;}
+void rad_rotate(db &x,db &y,db rad,db cx=0,db cy=0){db sinS=sin(rad),cosS=cos(rad),x_=x-cx,y_=y-cy;x=x_*cosS-y_*sinS+cx;y=x_*sinS+y_*cosS+cy;}
+db eps=1e-9;
+int n;
+// かいてんご
+int chk(V<V<db>> &v,V<V<db>> &x){
+    V<db> num(2);
+    rep(i,0,2)num[i]=v[0][i]-x[0][i];
+
+rep(i,0,2)printf("%lf ",num[i]);
+printf("\n\n");
+    rep(i,1,n){
+rep(j,0,2) printf("%lf ", v[i][j]-x[i][j]-num[j]);printf("\n");
+        rep(j,0,2) if( abs(v[i][j]-x[i][j]-num[j]) > eps ) return 0;
+    }
+
+    return 1;
+}
+
+int main(){
+    cin>>n;
+
+    V<V<V<db>>> v(2,V<V<db>>(n,V<db>(2)));
+    rep(i,0,2){
+        rep(j,0,n){
+            rep(k,0,2)cin>>v[i][j][k];
+        }
+    }
+    
+    db x=v[0][0][0];
+    db y=v[0][0][1];
+    rep(i,0,n){
+        db xx=x-v[1][i][0];
+        db yy=y-v[1][i][1];
+
+        V<V<db>> v_=v[0];
+        rep(j,0,n){
+            v_[j][0]-=x;
+            v_[j][1]-=y;
+        }
+
+        
+
+        // if(chk(v_,v[1]))continue;
+
+
+    }
+
+
+
+    if(chk(v[0],v[1]))yn;
+}#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <queue>
+#include <map>
+#include <set>
+#include <cmath>
+// #include <atcoder/all>
+using namespace std;
+using ll = long long int;
+using vi = vector<int>;
+using vll = vector<ll>;
+using ss = string;
+using db = double;
+template<class T> using minpq = priority_queue <T,vector<T>,greater<T>>;
+const int dx[4] = {1,0,-1,0};
+const int dy[4] = {0,1,0,-1};
+#define V vector
+#define pii pair<int,int>
+#define pll pair<ll,ll>
+#define rep(i,s,n) for(int i=(s);i<(int)(n);i++)
+#define reciv(v,n) vi (v)((n)); rep(i,0,(n))cin>>v[i]
+#define all(v) v.begin(),v.end()
+#define rall(v) v.rbegin(),v.rend()
+#define ci(x) cin >> x
+#define pb push_back
+#define eb emplace_back
+#define rz resize
+#define sz(x) int(x.size())
+#define yn cout<<"Yes"<<endl;else cout<<"No"<<endl
+#define YN cout<<"YES"<<endl;else cout<<"NO"<<endl
+template<class T>void chmax(T &x,T y){x=max(x,y);}
+template<class T>void chmin(T &x,T y){x=min(x,y);}
+template<class T>void allv(V<T> v){for(T NUM:v)printf("%d ",NUM);printf("\n");}
+// 三角関数, 回転 　引数にはradian 値を使用する
+const db rad_pi=3.141592653589793;
+db rad_to_rad(db angle){return angle*rad_pi/180;}
+db rad_to_deg(db radian){return radian*180/rad_pi;}
+void rad_rotate(db &x,db &y,db rad,db cx=0,db cy=0){db sinS=sin(rad),cosS=cos(rad),x_=x-cx,y_=y-cy;x=x_*cosS-y_*sinS+cx;y=x_*sinS+y_*cosS+cy;}
+db rad_art(db x,db y,db x_,db y_){ // A,B が原点中心に何radian差があるか判定
+    db th=atan2(y_,x_) - atan2(y,x);
+    if(rad_pi < th)return rad_pi-th;
+    return th;
+}
+int main(){
+    db x, y ;	
+    // cin>> x >> y ;
+    x=-1,y=-0.000001;
+    db x_, y_ ;	cin>> x_ >> y_ ;
+    db at=rad_art(x,y,x_,y_);
+    printf("%.9lf\n",at);
+    // printf("%.9lf\n",rad_to_deg(at));
+}
