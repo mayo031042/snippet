@@ -27,22 +27,44 @@ const int dy[4] = {0,1,0,-1};
 template<class T>void chmax(T &x,T y){x=max(x,y);}
 template<class T>void chmin(T &x,T y){x=min(x,y);}
 
+
 // UF
-vector<int> uf_par;
-void uf_init(int sz){uf_par.resize(sz,-1);}
-int uf_rt(int x){
-    if(uf_par[x]<0)return x;
-    return uf_par[x]=uf_rt(uf_par[x]);
-}
-int uf_unt(int x,int y=-1){
-    if(y==-1)y=x;
-    x=uf_rt(x),y=uf_rt(y);
-    if(x==y)return -uf_par[x];
-    if(uf_par[x]>uf_par[y])swap(x,y);
-    uf_par[x]+=uf_par[y];
-    uf_par[y]=x;
-    return -uf_par[x];
-}
+typedef class uf_ uf_;
+class uf_{
+    using T = int;
+private:
+    T n,alln;
+    V<T> par;
+
+public:
+    uf_(int sz){
+        n=alln=sz;
+        par.resize(n,-1);
+    }
+
+    int rt(int x){
+        if(par[x]<0)return x;
+        return par[x]=rt(par[x]);
+    }
+    int size(int x){
+        return -par[rt(x)];
+    }
+    int allsz(){
+        return alln;
+    }
+    bool issame(int x,int y){
+        return rt(x)==rt(y);
+    }
+    void unt(int x,int y){
+        x=rt(x);y=rt(y);
+        if(issame(x,y)) return ;
+        if(size(x)<size(y))swap(x,y);
+        par[x]+=par[y];
+        par[y]=x;
+        alln--;
+        return ;
+    }
+};
 
 
 //日付計算
@@ -78,44 +100,195 @@ void preday(int &year,int &month,int &day){
 }
 
 
-// segment tree;
-vector<int> seg_t;
-int seg_sz = 1, seg_init_num;
-int seg_func_init(int left,int right){
-    return max(left,right); // 書き換え
-}
-int seg_content(int i){
-    return seg_t[seg_sz+i-1];
-}
-void seg_all_init(const vector<int> &v){
-    int vec_sz=v.size();
-    while( seg_sz < vec_sz ) seg_sz <<= 1;
-    seg_t.resize( seg_sz*2-1, seg_init_num );
-    rep(i,0,vec_sz) seg_init(i,v[i]);
-}
-void seg_init(int index,int x=seg_init_num){ // seg_t[i] を　ｘで初期化
-    int now = index+seg_sz-1;
-    seg_t[now] = x;
-
-    while(now){
-        int par = (now-1)/2;
-        int chi = par*2+1;
-        if( now == chi ) chi++;
-
-        seg_t[par]=seg_func_init( seg_t[now], seg_t[chi] );
-        now=par;
+// seg木
+typedef class seg_ seg_;
+class seg_{
+    using T = ll;
+    int n;
+    T base;
+    V<T> dat;
+    void build(const V<T> &v){
+        rep(i,0,sz(v)) dat[i+n-1]=v[i];
+        for(int now=n-2; now>=0; now--){
+            dat[now]=func(dat[now*2+1],dat[now*2+2]);
+        }
     }
-}
-int seg_func(int a,int b,int now=0,int l=0,int r=seg_sz){
-  if(a<=l && r<=b)return seg_t[now];
-  if(r<=a || b<=l)return 0;
 
-  int hf=(l+r)/2;
-  int chi_l=seg_func(a,b,now*2+1,l,hf);
-  int chi_r=seg_func(a,b,now*2+2,hf,r);
+    void influence(int i){
+        int now=i+n-1;
+        while(now){
+            int par=(now-1)/2;
+            int chi=par*2+1;
+            if(now==chi)chi++;
 
-  return seg_func_init(chi_l,chi_r);
-}
+            dat[par]=func(dat[now],dat[chi]);
+            now=par;
+        }
+    }
+
+    T range(int a,int b){
+        return range_(a,b,0,0,n);
+    }
+
+public:
+    seg_(const V<T> &v,T BASE):base(BASE){
+        n=1;
+        while(n<sz(v))n<<=1;
+
+        dat.resize(n*2-1,base);
+        build(v);
+    }
+    void set(int i,T x){
+        dat[i+n-1]=x;
+        influence(i);
+    }
+    void add(int i,T x){
+        dat[i+n-1]=func(dat[i+n-1],x);
+        influence(i);
+    }
+
+    T range_(int a,int b,int now,int l,int r){
+        if(a<=l && r<=b)return dat[now];
+        if(r<=a || b<=l)return base;
+        return func(range_(a,b,now*2+1,l,(l+r)/2), range_(a,b,now*2+2,(l+r)/2,r));
+    }
+    
+    inline T operator[](int i){ return dat[i+n-1]; }
+    void print(){ int x,y=x=2; rep(now,0,n*2-1){ cout<<dat[now]<<","; if(y==x++){y<<=1;cout<<endl; }}}
+    T    func(T l,T r){ return
+/*関数*/        max(l,r)     ; }
+};
+
+
+// 遅延seg木
+typedef class lazy_ lazy_;
+class lazy_{
+    using T = ll;
+    T base,impos;
+    int n;
+    V<T> dat,lazy;
+
+    void build(const V<T>&v){
+        rep(i,0,sz(v))dat[i+n-1]=v[i]; 
+        for(int now=n-2; now>=0; now--){ 
+            dat[now]=func(dat[now*2+1],dat[now*2+2]); 
+        }
+    }
+
+    void eval(int now){ 
+        if(lazy[now]==impos)return ;
+        if(now<n-1) lazy[now*2+1]=lazy[now*2+2]=lazy[now]; 
+        dat[now]=lazy[now]; lazy[now]=impos; 
+    }
+
+    void update(int a,int b,T x,int now,int l,int r){ 
+        eval(now); 
+        if(a<=l && r<=b){ 
+            lazy[now]=x;
+            eval(now); 
+        }
+        else if(a<r && l<b){
+            update(a,b,x,now*2+1,l,(l+r)/2);
+            update(a,b,x,now*2+2,(l+r)/2,r);
+            dat[now]=func(dat[now*2+1],dat[now*2+2]); 
+        }
+    }
+
+    T range_(int a,int b,int now,int l,int r){ 
+        eval(now); 
+        if(a<=l && r<=b)return dat[now]; 
+        if(r<=a || b<=l)return base; 
+        return func( range_(a,b,now*2+1,l,(l+r)/2), range_(a,b,now*2+2,(l+r)/2,r)); 
+    }
+
+public:
+    lazy_(const V<T>&v, T BASE, T IMPOS): base(BASE),impos(IMPOS){
+        n=1;
+        while(n<sz(v))n<<=1; 
+        dat.resize(n*2-1,base);
+        lazy.resize(n*2-1,impos);
+        build(v); 
+    }
+    
+    void confirm(int i){
+        return update(i,i+1,impos,0,0,n); 
+    }
+    void set(int i,T x){ 
+        confirm(i); 
+        dat[i+n-1]=x;
+        confirm(i); 
+    }
+    void add(int i,T x){
+        confirm(i);
+        dat[i+n-1]=func(dat[i+n-1],x);
+        confirm(i);
+    }
+
+    void update(int a,int b,T x){ 
+        return update(a,b,x,0,0,n); 
+    }
+    T    range(int a,int b){
+        return range_(a,b,0,0,n); 
+    }
+
+    inline T operator[](int i){ 
+        if(0<=i && i<n)return range(i,i+1); 
+        return impos;
+    }
+    void print(){
+        int x,y=x=2; 
+        rep(now,0,n*2-1){ 
+            cout<<dat[now]<<",";
+            if(y==x++){y<<=1;cout<<endl; }
+        }
+    }
+    T    func(T l,T r){ return 
+/*関数!*/ max(l,r)           ; }
+};
+
+
+// fenwick tree -> segment treeの軽量版　転倒数の計算にも使える
+typedef class fen_ fen_;
+class fen_{
+private:
+    using T = int ;
+    T n;
+    V<T> bit;
+
+public:
+    fen_(T sz) : bit(sz+1,0){n = sz; }
+
+    // a_i += val;
+    void add(T i,T val){
+        for( T x = i; x <= n; x += x&-x ){
+            bit[x]+=val;
+        }
+    }
+
+    // [1,i] の合計を計算
+    T sum(T i){
+        T ret=0;
+        for(T x = i; x > 0; x -= x&-x ){
+            ret+=bit[x];
+        }
+        return ret;
+    }
+
+    // [left+1,right] の合計を計算
+    T sum(T left,T right){
+        return sum(right) - sum(left);
+    }
+
+    // 転倒数を計算 v は1_indexed な配列、[1,n]の順列並び替えが望ましい
+    ll inv(const V<T>&v){
+        ll ret=0;
+        rep(i,0,n){
+            ret+=i-this->sum(v[i]);
+            this->add(v[i],1);
+        }
+        return ret;
+    }
+};
 
 
 // class ed
@@ -219,6 +392,59 @@ ss ntt_erase0(ss s){
     if(pos==-1)return "0";
     return s.substr(pos,sz(s));
 }
+
+
+
+
+typedef class cyc_ cyc_;
+class cyc_{
+    using T = ll;
+private:
+    V<T> v;ll tail=-1,cycle=0;
+public:
+    cyc_(){}
+    T func(T x){
+    
+        return x;
+    }
+    void survey(T x){map<T,int>mp;while(!mp.count(x)){mp[x]=cycle++;v.push_back(x);x=func(x);}tail=mp[x];cycle-=tail;}
+    T res(T x,ll n){if(tail==-1)survey(x);ll tm=min(n,tail);tm+=(n-tm)%cycle;return v[tm];}
+};
+
+
+// 周期性を持って変化するｘについて、ｎ回目の変化を算出する（計算量は無視しているので遅いかも、、、）
+typedef class cyc_ cyc_;
+class cyc_{
+    using T = ll;
+private:
+    V<T> v;
+    ll tail=-1,cycle=0;
+public:
+    cyc_(){}
+    T func(T x){
+        x%=100;
+        x++;
+        if(x==100)x=0;
+        return x;
+    }
+    void survey(T x){
+        map<T,int>mp;
+        while(!mp.count(x)){
+            mp[x]=cycle++;
+            v.push_back(x);
+            x=func(x);
+        }
+        tail=mp[x];
+        cycle-=tail;
+    }
+    T res(T x,ll n){
+        if(tail==-1)survey(x);
+        ll tm=min(n,tail);
+        tm+=(n-tm)%cycle;
+        return v[tm];
+    }
+};
+
 
 
 // 累乗計算

@@ -5,8 +5,13 @@ union find    ->    pUF
 nCk    ->    pCOMB
 三角関数補助    ->    pRAD
 進数変換    ->    pNTT
+fenwick(転倒数)    ->    pBIT
+周期変化    ->    pCYC
 
-class ed    ->    pCLS
+
+
+pow_    ->    pPOW,pJOU
+class ed    ->    ped
 mod    ->    modP
 
 // 
@@ -14,12 +19,15 @@ mod    ->    modP
 // 
     bs ->　二分探索　判定関数は bins(ll hf) としている
     perm -> next_perm...
+    shaku -> 尺取り法
+
 
     srt -> sort(all($1));
     rev -> 逆順loop
     col -> cout<< $1 <<endl;
     cii -> int $1 ; cin>> $1 ;
     cll -> ll  $1 ; cin>> $1 ;
+    cv/cvv 
 
 //
 //
@@ -28,11 +36,19 @@ mod    ->    modP
  // コード　使用方法集
 
     union find
-vector<int> uf_par;
-void uf_init(int sz)　// uf_par をsz でresize する　uf_par は　自身がtop_node ではないとき一つ上の親ノードの値を、
-                                                top_node であるときはそのグループのサイズ数を負の値として保持している
-int uf_rt(int x) // 値を更新しつつ最親ノードを返す
-int uf_unt(int x,int y=-1) // x, y をunite する　y==-1 or x==y　である場合はx の属するグループのサイズ数を返す
+class uf_{
+    using T = int;
+private:
+    T n;    サイズ数
+    V<T> par;
+public:
+    uf_(int sz)　       コンストラクタ：szでparを初期化
+    int rt(int x)       xの最親を返す
+    int size(int x)     xが含まれるグループのサイズを返す
+    int allsz()         総グループ数を返す
+    bool issame(int x,int y)　  xとyが同じグループに含まれるかを判定
+    void unt(int x,int y)　 x，yをつなぐか何もしない
+};
 
 
     日付計算
@@ -41,16 +57,53 @@ void nxday(int &year,int &month,int &day) // y,m,d を参照渡しすると、�
 void preday(int &year,int &month,int &day) // y,m,d を参照渡しすると、グレゴリオ暦に従い一日 前 の日付に直す。
 
 
-    セグメントツリー 　　　　-> int 以外なら書き換える必要はある・・・
-vector<int> seg_t;
-int seg_sz = 1;
-int seg_func_init(int left,int right) // 子ノード間の関係、max や、__gcd 等　使用前に書き換える
-void seg_init(int index,int x) // index i をx で 書き換える　
-void seg_all_init(const vi&v, int init_num) // セグ木のサイズを変更し　範囲内をvectorで、範囲外init_num で埋める
-int seg_content(int i) // seg_t[i]　の内容を返す
-int seg_func(int a,int b,int now=0,int l=0,int r=seg_sz) //　区間内全てに対してseg_func_init 内の関数を使用した結果が返される [a,b) b側は開区間
-    使用方法 ->　サイズsz のvec を受け取り、0-sz の区間でseg_init する 
-    seg_func_init の書き換え ->  seg_all_init ->  seg_func  
+    セグメントツリー 
+typedef class seg_ seg_;
+class seg_{
+    void build(const V<T> &v) // vを参照して十分なサイズのdatを形成する
+    void influence(int i)　// 葉i部分での変更をtopまで伝播する
+public:
+    seg_(const V<T> &v,T BASE):base(BASE) // コンストラクタ
+    void set(int i,T x) // 葉iにｘを代入する
+    void add(int i,T x) // 葉iにｘの影響を与える
+    T range(int a,int b) //　[a,b)に対してfuncをかける
+    inline T operator[](int i) 
+    void print()
+    T    func(T l,T r){ return
+/*関数*/        max(l,r)     ; }
+}
+
+    遅延seg木
+typedef class seg_ seg_;
+kclass seg_{
+    using T = ll;
+private:
+public:
+    T base,impos; int n;
+    V<T> dat,lazy;
+    seg_(V<T>&v,T BASE,T IMPOS)     // lazyをimposで、dat をbaseで初期化
+
+    T func(T l,T r)          // これをもとにdatは更新されていく
+
+    void build(V<T>&v)       // 全頂点を葉を基準に更新
+
+    void confirm(int i)　// 遅延させている更新を葉i まで最新にする
+    void set(int i,T x)      // 葉iにｘを代入し、更新する
+    void add(int i,T x)      // 葉iにｘの影響を与え、更新する
+    
+    void eval(int i) // 更新する必要があるdatを更新し、下位頂点に更新意思を伝播させる
+    
+        // a,bは葉の並びを指している(0~n]
+        // updateが触れた頂点はすべて　lazy=impos and dat=x　となる
+        // evalを伝播させることによってdatを更新し、更新されたdatによって更に上位のdatを更新する関数と言える
+        // lazyを下位へ、datを上位へ更新する関数と言える
+    void update(int a,int b,T x,int now,int l,int r)
+    
+        // 範囲内で、計算結果に関係のある数値のみを抽出する
+        // 範囲内すべてに順次funcをかけた結果が帰ってくる
+    T range(int a,int b);
+};
+
 
 
     class 指定　内容は都度変更
@@ -105,11 +158,47 @@ rep(l,0,n){
     else now-=v[l];     // 空集合でない場合はl の遷移に合わせて条件を変更してやる
 }
 
+
 // 進数表記変換
 char ntt_char(int x) 
 int ntt_int(char c)  
 ss ntt_cng(ss x,ll from,ll to) // 文字列ｘをfrom 進数表記とみなし、to 進法表記に変換する
 ss ntt_erase0(ss s) // 先頭の連続した０を消す　から文字列になった場合は"０"を返す
+
+typedef class BIT BIT;
+class BIT{
+private:
+    using T = int ;
+    T n;V<T> bit;
+public:
+    BIT(T sz) : bit(sz+1,0){n = sz; }
+    // a_i += val;
+    void add(T i,T val){for( T x = i; x <= n; x += x&-x ){bit[x]+=val;}}
+    // [1,i] の合計を計算
+    T sum(T i){T ret=0;for(T x = i; x > 0; x -= x&-x ){ret+=bit[x];}return ret;}
+    // [left+1,right] の合計を計算
+    T sum(T left,T right){return sum(right) - sum(left);}
+    // 転倒数を計算  v は1_indexed な配列、[1,n]の順列並び替えが望ましい
+    ll inv(const V<T>&v){ll ret=0;rep(i,0,n){ret+=i-this->sum(v[i]);this->add(v[i],1);}return ret;}
+};
+
+
+// 周期変化　周期性を持って変化する対象を追いかける　配列に保存されているので 
+class cyc_{
+    using T = ll;
+private:
+    V<T> v;ll tail=-1,cycle=0;
+public:
+    cyc_(){}
+    T func(T x){
+             // 関数を記述
+        return x;
+    }
+    void survey(T x)    xから始まる周期変化の遷移方法を調べる
+    T res(T x,ll n)     調べた結果、定数時間でxのn回変化後を返す
+};
+
+
 
 
 */ 未完	   
@@ -432,3 +521,4 @@ int main(){
     printf("%.9lf\n",at);
     // printf("%.9lf\n",rad_to_deg(at));
 }
+
